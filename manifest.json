@@ -1,0 +1,20 @@
+{
+  "name": "Termishare",
+  "description": "SSH client to share terminal over web",
+  "version": "1.0",
+  "manifest_version": 2,
+  "icons": {
+    "128": "terminal.png"
+  },
+  "app": {
+    "background": {
+      "scripts": ["background.js"]
+    }
+  },
+  "permissions": [
+    {"socket": [
+      "tcp-connect:*:*"
+    ]},
+    "storage"
+  ]
+}

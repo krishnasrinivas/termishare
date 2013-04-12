@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<!--
+Copyright (C) 2013  Krishna Srinivas (https://github.com/krishnasrinivas)
+Use of this source code is governed by GPLv3
+-->
+<html>
+  <head>
+<script src=paramikojs/common.js></script>
+<script src=paramikojs/BigInteger.js></script>
+<script src=paramikojs/auth_handler.js></script>
+<script src=paramikojs/rsakey.js></script>
+<script src=paramikojs/message.js></script>
+<script src=paramikojs/dsskey.js></script>
+<script src=paramikojs/packet.js></script>
+<script src=paramikojs/python_shim.js></script>
+<script src=paramikojs/misc.js></script>
+<script src=paramikojs/kex_group1.js></script>
+<script src=paramikojs/ssh_exception.js></script>
+<script src=paramikojs/channel.js></script>
+<script src=paramikojs/util.js></script>
+<script src=paramikojs/crypto/crypto.js></script>
+<script src=paramikojs/crypto/Random/OSRNG/browser.js></script>
+<script src=paramikojs/crypto/Random/Fortuna/FortunaGenerator.js></script>
+<script src=paramikojs/crypto/Random/Fortuna/SHAd256.js></script>
+<script src=paramikojs/crypto/Random/Fortuna/FortunaAccumulator.js></script>
+<script src=paramikojs/crypto/Random/_UserFriendlyRNG.js></script>
+<script src=paramikojs/crypto/PublicKey/DSA.js></script>
+<script src=paramikojs/crypto/PublicKey/RSA.js></script>
+<script src=paramikojs/crypto/Cipher/DES3.js></script>
+<script src=paramikojs/crypto/Cipher/ARC4.js></script>
+<script src=paramikojs/crypto/Cipher/AES.js></script>
+<script src=paramikojs/crypto/Cipher/Blowfish.js></script>
+<script src=paramikojs/crypto/Hash/SHA256.js></script>
+<script src=paramikojs/crypto/Hash/HMAC.js></script>
+<script src=paramikojs/crypto/Hash/baseHash.js></script>
+<script src=paramikojs/crypto/Hash/MD5.js></script>
+<script src=paramikojs/crypto/Hash/SHA.js></script>
+<script src=paramikojs/pkey.js></script>
+<script src=paramikojs/kex_gex.js></script>
+<script src=paramikojs/transport.js></script>
+
+<script src=hterm/nassh_deps.concat.js></script>
+
+<script src=termishare.js></script>
+<style type="text/css">
+
+.statusdivs {
+  padding: 1px;
+  border-radius: 5px;
+  border: 2px;
+  padding-left: 3px;
+  padding-right: 3px;
+  -webkit-user-select: text;
+  display: inline-block
+}
+
+body {
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+#terminal {
+  display: block;
+  position: absolute;
+}
+
+input[type='text'], input[type='password']
+{
+border-radius: 5px;
+border: 1px solid #CCC;
+padding: 5px;
+margin: 2px;
+font-weight: 200;
+font-size: 15px;
+font-family: Verdana;
+box-shadow: 1px 1px 5px #CCC;
+}
+
+input[type='button']
+{
+width: 150px;
+height: 34px;
+border: 2px solid white;
+background-color:#CCC;
+}
+
+.buttonclass {
+  -moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
+  box-shadow:inset 0px 1px 0px 0px #ffffff;
+  background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ededed), color-stop(1, #dfdfdf) );
+  background:-moz-linear-gradient( center top, #ededed 5%, #dfdfdf 100% );
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ededed', endColorstr='#dfdfdf');
+  background-color:#ededed;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #dcdcdc;
+  display:inline-block;
+  color:#777777;
+  font-family:arial;
+  font-size:15px;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:1px 1px 0px #ffffff;
+}.buttonclass:hover {
+  background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #dfdfdf), color-stop(1, #ededed) );
+  background:-moz-linear-gradient( center top, #dfdfdf 5%, #ededed 100% );
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#dfdfdf', endColorstr='#ededed');
+  background-color:#dfdfdf;
+}.buttonclass:active {
+  position:relative;
+  top:1px;
+}
+
+</style>
+
+</head>
+<body>
+<div id="resizediv" style="height:100%; width:100%;border: 1px solid white">
+<div id="statusdiv" style="background-color: whitesmoke; border-bottom:1px solid black">
+<div class="statusdivs"> Share link:</div>
+<div id="statusbox" class="statusdivs" style="border: 2px solid black;">....</div>
+<div id="viewers" class="statusdivs" style="float: right"> Viewers: 0</div>
+</div>
+
+<div id="sshinput" style="width:300px;margin:auto;position:relative;top:100px">
+<div style="width:90px; display:inline-block; text-align:center">SSH-Server</div>
+<input type="text" id="sshserver"><br>
+<div style="width:90px; display:inline-block; text-align:center">Username</div>
+<input type="text" id="username"><br>
+<div style="width:90px; display:inline-block; text-align:center">Password</div>
+<input type="password" id="password"><br>
+<div style="width:90px; display:inline-block; text-align:center; position:relative; top:10px">Sharecode (Optional)</div>
+<input type="text" id="sharecode"><br>
+<div class="buttonclass" id="buttonid" style="position:relative;float:right">Connect</div>
+</div>
+<div id='terminal'></div>
+</div>
+</body>
+</html>
