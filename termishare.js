@@ -139,13 +139,19 @@ var input = function() {
     } catch (ex) {}
     if (stdin && term) {
 	term.io.writeUTF8(stdin);
-	if (sharecodeprinted)
-            wsocket.send(JSON.stringify({"d": stdin}));
+	if (sharecodeprinted) {
+	    try {
+		wsocket.send(JSON.stringify({"d": stdin}));
+	    } catch (ex) {}
+	}
     }
     if (stderr && term) {
 	term.io.writeUTF8(stderr);
-	if (sharecodeprinted)
-            wsocket.send(JSON.stringify({"d": stderr}));
+	if (sharecodeprinted) {
+	    try {
+		wsocket.send(JSON.stringify({"d": stderr}));
+	    } catch (ex) {}
+	}
     }
 }
 
@@ -197,7 +203,7 @@ var onload_ = function() {
     var payload;
     if (sshinput)
 	sshinput.parentNode.removeChild(sshinput);
-    wsocket = new WebSocket("ws://termishare.com", "echo-protocol");
+    wsocket = new ReconnectingWebSocket("ws://termishare.com", "echo-protocol");
     wsocket.onopen = function () {
 	if (sharecode)
             payload = JSON.stringify ({"setsharecode_master":sharecode});
