@@ -68,11 +68,11 @@ ts.prototype.run = function() {
     var terminaldiv = document.getElementById("terminal");
 
     var x = resizediv.clientWidth - terminaldiv.clientWidth;
-    var y = resizediv.clientHeight - (statusdiv.clientHeight + terminaldiv.clientHeight);
+    var y = resizediv.clientHeight - (statusdiv.clientHeight + terminaldiv.clientHeight + 8);
     window.resizeBy (-x, -y);
 
     resizediv.style.width = terminaldiv.clientWidth + "px";
-    resizediv.style.height = statusdiv.clientHeight + terminaldiv.clientHeight + 1 + "px";
+    resizediv.style.height = statusdiv.clientHeight + terminaldiv.clientHeight + 4 + "px";
 
 
     resizediv.style.position = "relative";
