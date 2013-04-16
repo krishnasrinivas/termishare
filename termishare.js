@@ -21,7 +21,20 @@ var term;
 
 window.onload = function() {
     document.getElementById("buttonid").onclick = onload_;
+    document.getElementById("statusbox").onclick = copytoclipboard;
 };
+
+var copytoclipboard = function copytoclipboard() {
+    var range = document.createRange();
+    range.selectNode(document.getElementById("statusbox"));
+    window.getSelection().addRange(range);
+    document.execCommand('copy');
+    document.getElementById("textid").textContent = "Copied to clip board";
+    setTimeout (function () {
+	window.getSelection().removeAllRanges();
+	document.getElementById("textid").textContent = "";
+    }, 2000);
+}
 
 window.onresize = function (event) {
     var resizediv = document.getElementById("resizediv");
