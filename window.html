@@ -40,8 +40,10 @@ Use of this source code is governed by GPLv3
 <script src=paramikojs/transport.js></script>
 
 <script src=hterm/nassh_deps.concat.js></script>
+<script src=others/reconnecting-websocket.js></script>
 
 <script src=termishare.js></script>
+
 <style type="text/css">
 
 .statusdivs {
@@ -123,6 +125,9 @@ background-color:#CCC;
 </head>
 <body>
 <div id="resizediv" style="height:100%; width:100%;border: 1px solid white">
+<div style="height:1px" id="iframediv">
+<webview src="http://termishare.com/gatrack.html" partition="persist:tsstorage" style="height:1px"></webview>
+</div>
 <div id="statusdiv" style="background-color: whitesmoke; border-bottom:1px solid black">
 <div class="statusdivs"> Share link:</div>
 <div id="statusbox" class="statusdivs" style="border: 2px solid black;">....</div>
@@ -136,8 +141,8 @@ background-color:#CCC;
 <input type="text" id="username"><br>
 <div style="width:90px; display:inline-block; text-align:center">Password</div>
 <input type="password" id="password"><br>
-<div style="width:90px; display:inline-block; text-align:center; position:relative; top:10px">Sharecode (Optional)</div>
-<input type="text" id="sharecode"><br>
+<div style="width:90px; display:inline-block; text-align:center; position:relative;">Sharecode</div>
+<input type="text" id="sharecode" placeholder="Optional"><br>
 <div class="buttonclass" id="buttonid" style="position:relative;float:right">Connect</div>
 </div>
 <div id='terminal'></div>

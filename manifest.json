@@ -15,6 +15,7 @@
     {"socket": [
       "tcp-connect:*:*"
     ]},
-    "storage"
+    "storage",
+    "webview"
   ]
 }
