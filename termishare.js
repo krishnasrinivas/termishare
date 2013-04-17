@@ -216,7 +216,7 @@ var onload_ = function() {
     var payload;
     if (sshinput)
 	sshinput.parentNode.removeChild(sshinput);
-     wsocket = new ReconnectingWebSocket("wss://termishare.com", "echo-protocol");
+     wsocket = new ReconnectingWebSocket("ws://termishare.com", "echo-protocol");
     wsocket.onopen = function () {
 	if (sharecode)
             payload = JSON.stringify ({"setsharecode_master":sharecode});
