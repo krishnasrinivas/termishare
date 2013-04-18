@@ -526,6 +526,7 @@ paramikojs.transport.prototype = {
         } else if (!triedPublicKey && pkey && nextOptions.indexOf('publickey') != -1) {
           this.auth_publickey(username, pkey);
         } else {
+          auth_failure();
           throw new paramikojs.ssh_exception.AuthenticationException('Authentication failed');
         }
       } else {

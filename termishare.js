@@ -94,7 +94,9 @@ ts.prototype.run = function() {
 }
 
 ts.prototype.sendString_ = function(string) {
-    channel.send(string);
+    try {
+        channel.send(string);
+    } catch (ex) {}
 };
 
 
@@ -105,12 +107,14 @@ ts.prototype.onTerminalResize_ = function(width, height) {
 /* ---------------------------------- */
 
 
-var trans = new paramikojs.transport(null);
+var trans;
 var sockid;
 var username;
 var password;
 var server;
 var wsocket;
+
+var textid;
 
 var cycle = function () {
     chrome.socket.read(sockid, function (readinfo) {
@@ -128,7 +132,9 @@ var cycle = function () {
             trans.fullBuffer += str;  // read data
             trans.run();
             cycle();
-	}
+	} else {
+        console.log ("Error: read on socket failed");
+    }
     });
 };
 
@@ -169,6 +175,8 @@ var input = function() {
 }
 
 var auth_success = function() {
+    var statusbox = document.getElementById("statusbox");
+    var viewers = document.getElementById("viewers");
     console.log("auth success");
     var on_success = function(chan) {
 	chan.get_pty('linux', 96, 28);
@@ -176,76 +184,105 @@ var auth_success = function() {
 	channel = chan;
     };
     trans.open_session(on_success);
+    textid.textContent = "";
+    statusbox.textContent = "getting sharecode...";
+    wsocket = new ReconnectingWebSocket("ws://termishare.com", "echo-protocol");
+    wsocket.onopen = function () {
+        textid.textContent = "";
+    if (sharecode)
+            payload = JSON.stringify ({"setsharecode_master":sharecode});
+    else
+            payload = JSON.stringify ({"getsharecode":1});
+    wsocket.send(payload);
+    };
+    wsocket.onerror = function () {
+        textid.textContent = "Unable to connect to termishare.com";
+    }
+    wsocket.onclose = function () {
+        textid.textContent = "Unable to connect to termishare.com";
+    }
+    wsocket.onmessage = function(message) {
+    var messageobj = JSON.parse(message.data);
+    if(messageobj["viewers"]) {
+        viewers.textContent = "Viewers: " + messageobj["viewers"];
+    }
+
+    if (!sharecode) {
+        sharecode = messageobj["getsharecode_rsp"];
+        if (!sharecode) {
+        console.log ("sharecode not recevied");
+        return;
+        }
+    }
+    if (!sharecodeprinted) {
+            statusbox.textContent = "http://termishare.com/"+sharecode;
+            sharecodeprinted = 1;
+    }
+
+    else if (channel) {
+        if(messageobj["d"])
+        channel.send(messageobj["d"]);
+    }
+    }
+
+    var sshinput = document.getElementById("sshinput");
+    if (sshinput)
+        sshinput.parentNode.removeChild(sshinput);
+
+    lib.init(ts.init);
 };
+
+var auth_failure = function() {
+    console.log("auth failure");
+    document.getElementById("textid").textContent = "Authentication failure";
+}
 
 var sharecode;
 
 var onload_ = function() {
-    var statusbox = document.getElementById("statusbox");
-    var viewers = document.getElementById("viewers");
+    trans = new paramikojs.transport(null);
+    textid = document.getElementById('textid');
+    textid.textContent = "";
 
     server = document.getElementById('sshserver').value;
     username = document.getElementById('username').value;
     password = document.getElementById('password').value;
     sharecode = document.getElementById('sharecode').value;
 
-    if (!server || !username || !password)
-	return;
+    if (!server || !username || !password) {
+        textid.textContent = "Enter server, username, password details";
+    	return;
+    }
 
     if (sharecode) {
         if (!sharecode.match (/^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/)) {
-            document.getElementById('sharecode').value = "Invalid Sharecode";
+            textid.textContent = "Invalid Sharecode";
             return;
         }
     }
-
-    statusbox.textContent = "getting sharecode...";
-
+    textid.textContent = "Connecting...."
     chrome.socket.create('tcp', {}, function(c) {
+    if (c.socketId < 0) {
+        textid.textContent = "Unable to create socket";
+        return;
+    }
 	chrome.socket.connect(c.socketId, server, 22, function(res) {
+        if (res == -105) {
+            textid.textContent = "DNS resolution failed";
+            return;
+        } else if (res == -102) {
+            textid.textContent = "Unable to connect to remote port";
+            return;
+        } else if (res < 0) {
+            textid.textContent = "Error :" + res;
+            return;
+        }
+        textid.textContent = "Authenticating..."
 	    sockid = c.socketId;
 	    cycle();
 	    trans.writeCallback = write;
 	    trans.connect (null, null, username, password, null, auth_success);
 	});
     });
-    lib.init(ts.init);
-
-
-    var sshinput = document.getElementById("sshinput");
-    var payload;
-    if (sshinput)
-	sshinput.parentNode.removeChild(sshinput);
-     wsocket = new ReconnectingWebSocket("ws://termishare.com", "echo-protocol");
-    wsocket.onopen = function () {
-	if (sharecode)
-            payload = JSON.stringify ({"setsharecode_master":sharecode});
-	else
-            payload = JSON.stringify ({"getsharecode":1});
-	wsocket.send(payload);
-    };
-    wsocket.onmessage = function(message) {
-	var messageobj = JSON.parse(message.data);
-	if(messageobj["viewers"]) {
-	    viewers.textContent = "Viewers: " + messageobj["viewers"];
-	}
-
-	if (!sharecode) {
-	    sharecode = messageobj["getsharecode_rsp"];
-	    if (!sharecode) {
-		console.log ("sharecode not recevied");
-		return;
-	    }
-	}
-	if (!sharecodeprinted) {
-            statusbox.textContent = "http://termishare.com/"+sharecode;
-            sharecodeprinted = 1;
-	}
-
-	else if (channel) {
-	    if(messageobj["d"])
-		channel.send(messageobj["d"]);
-	}
-    }
 }
 
