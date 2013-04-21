@@ -234,7 +234,7 @@ var onload_ = function() {
     server = document.getElementById('sshserver').value;
     username = document.getElementById('username').value;
     password = document.getElementById('password').value;
-    sharecode = document.getElementById('sharecode').value;
+//    sharecode = document.getElementById('sharecode').value;
 
     if (!server || !username || !password) {
         textid.textContent = "Enter server, username, password details";
