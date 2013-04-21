@@ -18,5 +18,6 @@
     "storage",
     "webview",
     "clipboardWrite"
-  ]
+  ],
+  "minimum_chrome_version": "24.0"
 }
